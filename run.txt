@@ -1,0 +1,14 @@
+R CMD BATCH '--args
+    -t SARC0028initialresection
+    -n blood
+    --nb  /mnt/normal/SARC0028blood.bam
+    --tb  /mnt/tumor/SARC0028initialresection.bam
+    --sex male
+    --min_ploidy 2.5
+    --max_ploidy 4.2
+    --min_rho 0.05
+    --min_goodness 0.2
+    --skip_allelecount TRUE
+    --skip_preprocessing TRUE
+    --skip_phasing TRUE --use_presetrhopsi TRUE --preset_rho 0.2 --preset_psi 3.8
+    -o /mnt/output/' /mnt/output/battenberg_wgs.R /mnt/output/battenberg.Rout

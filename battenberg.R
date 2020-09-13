@@ -1,9 +1,63 @@
-library(Battenberg)
-library(optparse)
-
-
-#' @inheritParams battenberg
-battenberg_refit = function(varusepresetrhopsi=F, varpresetrho=NA, varpresetpsi=NA, tumourname, normalname, tumour_data_file, normal_data_file, imputeinfofile, g1000prefix, problemloci, gccorrectprefix=NULL,
+#' Run the Battenberg pipeline
+#'
+#' @param tumourname Tumour identifier, this is used as a prefix for the output files. If allele counts are supplied separately, they are expected to have this identifier as prefix.
+#' @param normalname Matched normal identifier, this is used as a prefix for the output files. If allele counts are supplied separately, they are expected to have this identifier as prefix.
+#' @param tumour_data_file A BAM or CEL file for the tumour
+#' @param normal_data_file A BAM or CEL file for the normal
+#' @param imputeinfofile Full path to a Battenberg impute info file with pointers to Impute2 reference data
+#' @param g1000prefix Full prefix path to 1000 Genomes SNP loci data, as part of the Battenberg reference data
+#' @param problemloci Full path to a problem loci file that contains SNP loci that should be filtered out
+#' @param gccorrectprefix Full prefix path to GC content files, as part of the Battenberg reference data, not required for SNP6 data (Default: NULL)
+#' @param repliccorrectprefix Full prefix path to replication timing files, as part of the Battenberg reference data, not required for SNP6 data (Default: NULL)
+#' @param g1000allelesprefix Full prefix path to 1000 Genomes SNP alleles data, as part of the Battenberg reference data, not required for SNP6 data (Default: NA)
+#' @param ismale A boolean set to TRUE if the donor is male, set to FALSE if female, not required for SNP6 data (Default: NA)
+#' @param data_type String that contains either wgs or snp6 depending on the supplied input data (Default: wgs)
+#' @param impute_exe Pointer to the Impute2 executable (Default: impute2, i.e. expected in $PATH)
+#' @param allelecounter_exe Pointer to the alleleCounter executable (Default: alleleCounter, i.e. expected in $PATH)
+#' @param nthreads The number of concurrent processes to use while running the Battenberg pipeline (Default: 8)
+#' @param platform_gamma Platform scaling factor, suggestions are set to 1 for wgs and to 0.55 for snp6 (Default: 1)
+#' @param phasing_gamma Gamma parameter used when correcting phasing mistakes (Default: 1)
+#' @param segmentation_gamma The gamma parameter controls the size of the penalty of starting a new segment during segmentation. It is therefore the key parameter for controlling the number of segments (Default: 10)
+#' @param segmentation_gamma_multisample The gamma parameter controls the size of the penalty of starting a new segment during mutlisample segmentation. It is the key parameter for controlling the number of segments (Default: 10)
+#' @param segmentation_kmin Kmin represents the minimum number of probes/SNPs that a segment should consist of (Default: 3)
+#' @param phasing_kmin Kmin used when correcting for phasing mistakes (Default: 3)
+#' @param clonality_dist_metric  Distance metric to use when choosing purity/ploidy combinations (Default: 0)
+#' @param ascat_dist_metric Distance metric to use when choosing purity/ploidy combinations (Default: 1)
+#' @param min_ploidy Minimum ploidy to be considered (Default: 1.6)
+#' @param max_ploidy Maximum ploidy to be considered (Default: 4.8)
+#' @param min_rho Minimum purity to be considered (Default: 0.1)
+#' @param min_goodness Minimum goodness of fit required for a purity/ploidy combination to be accepted as a solution (Default: 0.63)
+#' @param uninformative_BAF_threshold The threshold beyond which BAF becomes uninformative (Default: 0.51)
+#' @param min_normal_depth Minimum depth required in the matched normal for a SNP to be considered as part of the wgs analysis (Default: 10)
+#' @param min_base_qual Minimum base quality required for a read to be counted when allele counting (Default: 20)
+#' @param min_map_qual Minimum mapping quality required for a read to be counted when allele counting (Default: 35)
+#' @param calc_seg_baf_option Sets way to calculate BAF per segment: 1=mean, 2=median, 3=ifelse median==0 | 1, mean, median (Default: 3)
+#' @param skip_allele_counting Provide TRUE when allele counting can be skipped (i.e. its already done) (Default: FALSE)
+#' @param skip_preprocessing Provide TRUE when preprocessing is already complete (Default: FALSE)
+#' @param skip_phasing  Provide TRUE when phasing is already complete (Default: FALSE)
+#' @param usebeagle Should use beagle5 instead of impute2 Default: FALSE
+#' @param beaglejar Full path to Beagle java jar file Default: NA
+#' @param beagleref.template Full path template to Beagle reference files where the chromosome is replaced by 'CHROMNAME' Default: NA
+#' @param beagleplink.template Full path template to Beagle plink files where the chromosome is replaced by 'CHROMNAME' Default: NA
+#' @param beaglemaxmem Integer Beagle max heap size in Gb  Default: 10
+#' @param beaglenthreads Integer number of threads used by beagle5 Default:1
+#' @param beaglewindow Integer size of the genomic window for beagle5 (cM) Default:40
+#' @param beagleoverlap Integer size of the overlap between windows beagle5 Default:4
+#' @param javajre Path to the Java JRE executable, only required for haplotype reconstruction with Beagle (default java, i.e. in $PATH)
+#' @param snp6_reference_info_file Reference files for the SNP6 pipeline only (Default: NA)
+#' @param apt.probeset.genotype.exe Helper tool for extracting data from CEL files, SNP6 pipeline only (Default: apt-probeset-genotype)
+#' @param apt.probeset.summarize.exe  Helper tool for extracting data from CEL files, SNP6 pipeline only (Default: apt-probeset-summarize)
+#' @param norm.geno.clust.exe  Helper tool for extracting data from CEL files, SNP6 pipeline only (Default: normalize_affy_geno_cluster.pl)
+#' @param birdseed_report_file Sex inference output file, SNP6 pipeline only (Default: birdseed.report.txt)
+#' @param heterozygousFilter Legacy option to set a heterozygous SNP filter, SNP6 pipeline only (Default: "none")
+#' @param prior_breakpoints_file A two column file with prior breakpoints to be used during segmentation (Default: NULL)
+#' @param externalhaplotypefile Vcf containing externally obtained haplotype blocks (Default: NA)
+#' @param write_battenberg_phasing Write the Battenberg phasing results as vcf to disk, e.g. for multisample cases (Default: TRUE)
+#' @param maxlag Maximal number of upstream SNPs used in the multisample haplotyping to inform the haplotype at another SNP (Default: 100)
+#' @param relative_weight_balanced Relative weight to give to haplotype info from a sample without allelic imbalance in the region (Default: 0.25)
+#' @author sd11, jdemeul
+#' @export
+battenberg = function(tumourname, normalname, tumour_data_file, normal_data_file, imputeinfofile, g1000prefix, problemloci, gccorrectprefix=NULL,
                       repliccorrectprefix=NULL, g1000allelesprefix=NA, ismale=NA, data_type="wgs", impute_exe="impute2", allelecounter_exe="alleleCounter", nthreads=8, platform_gamma=1, phasing_gamma=1,
                       segmentation_gamma=10, segmentation_kmin=3, phasing_kmin=1, clonality_dist_metric=0, ascat_dist_metric=1, min_ploidy=1.6,
                       max_ploidy=4.8, min_rho=0.1, min_goodness=0.63, uninformative_BAF_threshold=0.51, min_normal_depth=10, min_base_qual=20,
@@ -338,9 +392,9 @@ battenberg_refit = function(varusepresetrhopsi=F, varpresetrho=NA, varpresetpsi=
                     min.goodness=min_goodness,
                     uninformative_BAF_threshold=uninformative_BAF_threshold,
                     gamma_param=platform_gamma,
-                    use_preset_rho_psi=varusepresetrhopsi,
-                    preset_rho=varpresetrho,
-                    preset_psi=varpresetpsi,
+                    use_preset_rho_psi=F,
+                    preset_rho=NA,
+                    preset_psi=NA,
                     read_depth=30)
 
     # Go over all segments, determine which segements are a mixture of two states and fit a second CN state
@@ -390,139 +444,3 @@ battenberg_refit = function(varusepresetrhopsi=F, varpresetrho=NA, varpresetpsi=
                           plotting = T)
   }
 }
-environment(battenberg_refit) <- environment(battenberg)
-
-
-option_list = list(
-  make_option(c("-t", "--tumourname"), type="character", default=NULL, help="Samplename of the tumour", metavar="character"),
-  make_option(c("-n", "--normalname"), type="character", default=NULL, help="Samplename of the normal", metavar="character"),
-  make_option(c("--tb"), type="character", default=NULL, help="Tumour BAM file", metavar="character"),
-  make_option(c("--nb"), type="character", default=NULL, help="Normal BAM file", metavar="character"),
-  make_option(c("--sex"), type="character", default=NULL, help="Sex of the sample", metavar="character"),
-  make_option(c("-o", "--output"), type="character", default=NULL, help="Directory where output will be written", metavar="character"),
-  make_option(c("--skip_allelecount"), type="logical", default=FALSE, action="store_true", help="Provide when alleles don't have to be counted. This expects allelecount files on disk", metavar="character"),
-  make_option(c("--skip_preprocessing"), type="logical", default=FALSE, action="store_true", help="Provide when pre-processing has previously completed. This expects the files on disk", metavar="character"),
-  make_option(c("--skip_phasing"), type="logical", default=FALSE, action="store_true", help="Provide when phasing has previously completed. This expects the files on disk", metavar="character"),
-  make_option(c("--min_ploidy"), type="numeric", default=1.6, help="Minimum ploidy to be considered (Default: 1.6)", metavar="character"),
-  make_option(c("--max_ploidy"), type="numeric", default=4.8, help="Maximum ploidy to be considered (Default: 4.8)", metavar="character"),
-  make_option(c("--min_rho"), type="numeric", default=0.1, help="Minimum purity to be considered (Default: 0.1", metavar="character"),
-  make_option(c("--min_goodness"), type="numeric", default=0.63, help="Minimum goodness of fit required for a purity/ploidy combination to be accepted as a solution (Default: 0.63)", metavar="character"),
-  make_option(c("--use_presetrhopsi"), type="logical", default=FALSE, help="Use a preset rho and psi for refitting", metavar="character"),
-  make_option(c("--preset_rho"), type="numeric", default=NULL, help="Preset rho", metavar="character"),
-  make_option(c("--preset_psi"), type="numeric", default=NULL, help="Preset psi", metavar="character"),
-  make_option(c("--cpu"), type="numeric", default=8, help="The number of CPU cores to be used by the pipeline (Default: 8)", metavar="character"),
-  make_option(c("--bp"), type="character", default=NULL, help="Optional two column file (chromosome and position) specifying prior breakpoints to be used during segmentation", metavar="character")
-)
-
-opt_parser = OptionParser(option_list=option_list)
-opt = parse_args(opt_parser)
-
-TUMOURNAME = opt$tumourname
-NORMALNAME = opt$normalname
-NORMALBAM = opt$nb
-TUMOURBAM = opt$tb
-IS.MALE = opt$sex=="male" | opt$sex=="Male"
-RUN_DIR = opt$output
-SKIP_ALLELECOUNTING = opt$skip_allelecount
-SKIP_PREPROCESSING = opt$skip_preprocessing
-SKIP_PHASING = opt$skip_phasing
-NTHREADS = opt$cpu
-PRIOR_BREAKPOINTS_FILE = opt$bp
-MIN_PLOIDY = opt$min_ploidy
-MAX_PLOIDY = opt$max_ploidy
-MIN_RHO = opt$min_rho
-MIN_GOODNESS_OF_FIT = opt$min_goodness
-VARUSEPRESETRHOPSI = opt$use_presetrhopsi
-VARPRESETRHO = opt$preset_rho
-VARPRESETPSI = opt$preset_psi
-
-###############################################################################
-# 2018-11-01
-# A pure R Battenberg v2.2.9 WGS pipeline implementation.
-# sd11 [at] sanger.ac.uk
-###############################################################################
-
-# General static
-IMPUTEINFOFILE = "/opt/battenberg_reference/imputation/impute_info_modified.txt"
-G1000PREFIX = "/opt/battenberg_reference/1000G_loci_hg38/1kg.phase3.v5a_GRCh38nounref_allele_index_chr"
-G1000PREFIX_AC = "/opt/battenberg_reference/1000G_loci_hg38/1kg.phase3.v5a_GRCh38nounref_loci_chrstring_chr"
-GCCORRECTPREFIX = "/opt/battenberg_reference/GC_correction_hg38/1000G_GC_chr"
-REPLICCORRECTPREFIX = "/opt/battenberg_reference/RT_correction_hg38/1000G_RT_chr"
-IMPUTE_EXE = "impute2"
-
-PLATFORM_GAMMA = 1
-PHASING_GAMMA = 1
-SEGMENTATION_GAMMA = 10
-SEGMENTATIIN_KMIN = 3
-PHASING_KMIN = 1
-CLONALITY_DIST_METRIC = 0
-ASCAT_DIST_METRIC = 1
-BALANCED_THRESHOLD = 0.51
-MIN_NORMAL_DEPTH = 10
-MIN_BASE_QUAL = 20
-MIN_MAP_QUAL = 35
-CALC_SEG_BAF_OPTION = 1
-
-# WGS specific static
-ALLELECOUNTER = "alleleCounter"
-PROBLEMLOCI = "/opt/battenberg_reference/probloci/probloci.txt"
-USEBEAGLE = T
-GENOME_VERSION = "hg38"
-BEAGLE_BASEDIR = "/opt/battenberg_reference/beagle5"
-BEAGLEJAR = file.path(BEAGLE_BASEDIR, "beagle.24Aug19.3e8.jar")
-BEAGLEREF.template = file.path(BEAGLE_BASEDIR, GENOME_VERSION, "chrCHROMNAME.1kg.phase3.v5a_GRCh38nounref.vcf.gz")
-BEAGLEPLINK.template = file.path(BEAGLE_BASEDIR, GENOME_VERSION, "plink.chrCHROMNAME.GRCh38.map")
-JAVAJRE = "java"
-
-
-# Change to work directory and load the chromosome information
-setwd(RUN_DIR)
-
-battenberg_refit(varusepresetrhopsi=VARUSEPRESETRHOPSI,
-					 varpresetrho=VARPRESETRHO,
-					 varpresetpsi=VARPRESETPSI,
-					 tumourname=TUMOURNAME,
-           normalname=NORMALNAME,
-           tumour_data_file=TUMOURBAM,
-           normal_data_file=NORMALBAM,
-           ismale=IS.MALE,
-           imputeinfofile=IMPUTEINFOFILE,
-           g1000prefix=G1000PREFIX,
-           g1000allelesprefix=G1000PREFIX_AC,
-           gccorrectprefix=GCCORRECTPREFIX,
-           repliccorrectprefix=REPLICCORRECTPREFIX,
-           problemloci=PROBLEMLOCI,
-           data_type="wgs",
-           impute_exe=IMPUTE_EXE,
-           allelecounter_exe=ALLELECOUNTER,
-	   usebeagle=USEBEAGLE,
-	   beaglejar=BEAGLEJAR,
-	   beagleref=BEAGLEREF.template,
-	   beagleplink=BEAGLEPLINK.template,
-	   beaglemaxmem=10,
-	   beaglenthreads=1,
-	   beaglewindow=40,
-	   beagleoverlap=4,
-	   javajre=JAVAJRE,
-           nthreads=NTHREADS,
-           platform_gamma=PLATFORM_GAMMA,
-           phasing_gamma=PHASING_GAMMA,
-           segmentation_gamma=SEGMENTATION_GAMMA,
-           segmentation_kmin=SEGMENTATIIN_KMIN,
-           phasing_kmin=PHASING_KMIN,
-           clonality_dist_metric=CLONALITY_DIST_METRIC,
-           ascat_dist_metric=ASCAT_DIST_METRIC,
-           min_ploidy=MIN_PLOIDY,
-           max_ploidy=MAX_PLOIDY,
-           min_rho=MIN_RHO,
-           min_goodness=MIN_GOODNESS_OF_FIT,
-           uninformative_BAF_threshold=BALANCED_THRESHOLD,
-           min_normal_depth=MIN_NORMAL_DEPTH,
-           min_base_qual=MIN_BASE_QUAL,
-           min_map_qual=MIN_MAP_QUAL,
-           calc_seg_baf_option=CALC_SEG_BAF_OPTION,
-           skip_allele_counting=SKIP_ALLELECOUNTING,
-           skip_preprocessing=SKIP_PREPROCESSING,
-           skip_phasing=SKIP_PHASING,
-           prior_breakpoints_file=PRIOR_BREAKPOINTS_FILE)
-
