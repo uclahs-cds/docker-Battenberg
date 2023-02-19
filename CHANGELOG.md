@@ -8,9 +8,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ---
 
 ## [Unreleased]
-### Changed
+### Added
+- Standardize the `docker-battenberg` repo
 
-## Added
+### Changed
+- Remove redundant files
 
 ---
 
