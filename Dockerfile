@@ -1,11 +1,15 @@
 FROM ghcr.io/uclahs-cds/bl-base:1.1.0 AS builder
 
 # Use mamba to install tools and dependencies into /usr/local
-#ARG TOOL_VERSION=X.X.X
-#RUN mamba create -qy -p /usr/local \
-#    -c bioconda \
-#    -c conda-forge \
-#    tool_name==${TOOL_VERSION}
+ARG HTSLIB_VERSION=1.16
+ARG ALLELECOUNTER_VERSION=4.3.0
+ARG IMPUTE2_VERSION=2.3.2
+RUN mamba create -qy -p /usr/local \
+    -c bioconda \
+    -c conda-forge \
+    htslib==${HTSLIB_VERSION} \
+    cancerit-allelecount==${ALLELECOUNTER_VERSION} \
+    impute2==${IMPUTE2_VERSION}
 
 FROM ubuntu:20.04
 COPY --from=builder /usr/local /usr/local
@@ -16,32 +20,6 @@ CMD ["bash"]
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y libxml2 libxml2-dev libcurl4-gnutls-dev r-cran-rgl git libssl-dev curl
-
-RUN mkdir /tmp/downloads
-
-RUN curl -sSL -o tmp.tar.gz --retry 10 https://github.com/samtools/htslib/archive/1.7.tar.gz && \
-    mkdir /tmp/downloads/htslib && \
-    tar -C /tmp/downloads/htslib --strip-components 1 -zxf tmp.tar.gz && \
-    make -C /tmp/downloads/htslib && \
-    rm -f /tmp/downloads/tmp.tar.gz
-
-ENV HTSLIB /tmp/downloads/htslib
-
-RUN curl -sSL -o tmp.tar.gz --retry 10 https://github.com/cancerit/alleleCount/archive/v4.0.0.tar.gz && \
-    mkdir /tmp/downloads/alleleCount && \
-    tar -C /tmp/downloads/alleleCount --strip-components 1 -zxf tmp.tar.gz && \
-    cd /tmp/downloads/alleleCount/c && \
-    mkdir bin && \
-    make && \
-    cp /tmp/downloads/alleleCount/c/bin/alleleCounter /usr/local/bin/. && \
-    cd /tmp/downloads && \
-    rm -rf /tmp/downloads/alleleCount /tmp/downloads/tmp.tar.gz
-
-RUN curl -sSL -o tmp.tar.gz --retry 10 https://mathgen.stats.ox.ac.uk/impute/impute_v2.3.2_x86_64_static.tgz && \
-    mkdir /tmp/downloads/impute2 && \
-    tar -C /tmp/downloads/impute2 --strip-components 1 -zxf tmp.tar.gz && \
-    cp /tmp/downloads/impute2/impute2 /usr/local/bin && \
-    rm -rf /tmp/downloads/impute2 /tmp/downloads/tmp.tar.gz
 
 RUN R -q -e 'install.packages("BiocManager"); BiocManager::install(c("cpp11","lifecycle","readr","ellipsis","vctrs","GenomicRanges","IRanges","gtools", "optparse", "RColorBrewer","ggplot2","gridExtra","doParallel","foreach", "splines")); install.packages("https://cloud.r-project.org/src/contrib/devtools_2.4.5.tar.gz",repos=NULL,type="source")'
 
