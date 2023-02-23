@@ -11,21 +11,22 @@ RUN mamba create -qy -p /usr/local \
     cancerit-allelecount==${ALLELECOUNTER_VERSION} \
     impute2==${IMPUTE2_VERSION}
 
+# Deploy the target tools into a base image
 FROM ubuntu:20.04
 COPY --from=builder /usr/local /usr/local
 
-#
+# Install more dependencies
 CMD ["bash"]
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y libxml2 libxml2-dev libcurl4-gnutls-dev r-cran-rgl git libssl-dev curl
 
-RUN R -q -e 'install.packages("BiocManager"); BiocManager::install(c("cpp11","lifecycle","readr","ellipsis","vctrs","GenomicRanges","IRanges","gtools", "optparse", "RColorBrewer","ggplot2","gridExtra","doParallel","foreach", "splines")); install.packages("https://cloud.r-project.org/src/contrib/devtools_2.4.5.tar.gz",repos=NULL,type="source")'
+RUN R -q -e 'install.packages("BiocManager"); BiocManager::install(c("cpp11","lifecycle","readr","ellipsis","vctrs","GenomicRanges","IRanges","gtools", "optparse", "RColorBrewer","ggplot2","gridExtra","doParallel","foreach", "splines", "VariantAnnotation", "copynumber")); install.packages("https://cloud.r-project.org/src/contrib/devtools_2.4.5.tar.gz",repos=NULL,type="source")'
 
 RUN R -q -e 'devtools::install_github("Crick-CancerGenomics/ascat/ASCAT")'
 
-RUN R -q -e 'BiocManager::install(c("VariantAnnotation","copynumber"))'
+# Install Battenberg 2.2.9
 RUN R -q -e 'devtools::install_github("Wedge-Oxford/battenberg@v2.2.9")'
 
 # modify paths to reference files
@@ -37,12 +38,8 @@ RUN cat /usr/local/lib/R/site-library/Battenberg/example/battenberg_wgs.R | \
     sed 's|PROBLEMLOCI = \".*|PROBLEMLOCI = \"/opt/battenberg_reference/battenberg_problem_loci/probloci_270415.txt.gz\"|' | \
     sed 's|REPLICCORRECTPREFIX = \".*|REPLICCORRECTPREFIX = \"/opt/battenberg_reference/battenberg_wgs_replic_correction_1000g_v3/1000_genomes_replication_timing_chr_\"|' > /usr/local/bin/battenberg_wgs.R
 
-RUN grep "IMPUTEINFOFILE" /usr/local/bin/battenberg_wgs.R; grep "PROBLEMLOCI" /usr/local/bin/battenberg_wgs.R
 RUN cp /usr/local/lib/R/site-library/Battenberg/example/filter_sv_brass.R /usr/local/bin/filter_sv_brass.R
 RUN cp /usr/local/lib/R/site-library/Battenberg/example/battenberg_cleanup.sh /usr/local/bin/battenberg_cleanup.sh
-RUN ls -alth /usr/local/bin/*
-
-# Deploy the target tools into a base image
 
 # Add a new user/group called bldocker
 RUN groupadd -g 500001 bldocker && \
