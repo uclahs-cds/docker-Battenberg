@@ -13,12 +13,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 - Remove redundant files
+- Rename `master` to `main` branch
 
 ---
 
-## [2.2.10-aa14170714] - 2023-02-18
+## [aa14170714] - 2023-02-18
 ### Added
--  Dockerfile based on `Wedge-lab/battenberg@aa14170714` dev branch
+- Dockerfile based on `Wedge-lab/battenberg@aa14170714` dev branch
 
 ### Changed
-- modifie version of `battenberg_wgs.R` to allow mounting of the GRCh38 reference files for Battenberg
+- Modify version of `battenberg_wgs.R` to allow mounting of the GRCh38 reference files for Battenberg
