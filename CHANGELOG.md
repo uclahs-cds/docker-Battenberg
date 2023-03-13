@@ -12,8 +12,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Standardize the `docker-Battenberg` repo
 
 ### Changed
-- Remove redundant files
 - Rename `master` to `main` branch
+
+### Removed
+- Remove redundant files
 
 ---
 
