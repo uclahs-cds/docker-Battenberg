@@ -1,0 +1,10 @@
+---
+category: 'docker'
+description: 'Docker repository for Wedge-lab/battenberg'
+maintainers: ['mmootor@mednet.ucla.edu']
+languages: ['Dockerfile']
+tools: ['battenberg']
+version: ['X.X.X']  # Tool version number
+purpose: ''  # Description of what this tool does
+references: ''  # is the tool/dependencies published, is there a confluence page
+image_name: ''  # name of the new docker image
