@@ -29,7 +29,7 @@ RUN R -q -e 'devtools::install_github("Crick-CancerGenomics/ascat/ASCAT")'
 # Install Battenberg 2.2.9
 RUN R -q -e 'devtools::install_github("Wedge-Oxford/battenberg@v2.2.9")'
 
-# modify paths to reference files
+# Modify paths to reference files
 RUN cat /usr/local/lib/R/site-library/Battenberg/example/battenberg_wgs.R | \
     sed 's|IMPUTEINFOFILE = \".*|IMPUTEINFOFILE = \"/opt/battenberg_reference/impute_info.txt\"|' | \
     sed 's|G1000PREFIX = \".*|G1000PREFIX = \"/opt/battenberg_reference/1000_genomes_loci/1000_genomes_allele_index_chr\"|' | \
