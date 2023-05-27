@@ -14,7 +14,7 @@ Battenberg GitHub repository [here](https://github.com/Wedge-lab/battenberg)
 |------|---------|
 |Battenberg|2.2.9|
 |HTSlib|1.16|
-|alleleCount|4.3.0
+|alleleCount|4.3.0|
 |IMPUTE2|2.3.2|
 |ASCAT|3.1.2|
 
