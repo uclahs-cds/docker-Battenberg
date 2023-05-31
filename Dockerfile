@@ -20,17 +20,17 @@ COPY --from=builder /usr/local /usr/local
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
-    && apt-get install -y libxml2 libxml2-dev libcurl4-gnutls-dev r-cran-rgl git libssl-dev curl \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
- 
+    && apt-get install -y --no-install-recommends build-essential libxml2 libxml2-dev libcurl4-gnutls-dev \
+    libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev r-cran-rgl git libssl-dev curl \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* 
 
 RUN R -q -e 'install.packages("BiocManager")' 
 RUN R -q -e 'BiocManager::install(c("cpp11","lifecycle","readr","ellipsis","vctrs",\
             "GenomicRanges","IRanges","gtools", "optparse", "RColorBrewer","ggplot2",\
             "gridExtra","doParallel","foreach", "splines", "VariantAnnotation", "copynumber"))'
-RUN R -q -e 'install.packages("https://cloud.r-project.org/src/contrib/devtools_2.4.5.tar.gz",repos=NULL,type="source")'
+RUN R -q -e 'install.packages("devtools", dependencies = TRUE)'
 
-RUN R -q -e 'devtools::install_github("Crick-CancerGenomics/ascat/ASCAT")'
+RUN R -q -e 'devtools::install_github("Crick-CancerGenomics/ascat/ASCAT@v3.1.2")'
 
 # Install Battenberg 2.2.9
 RUN R -q -e 'devtools::install_github("Wedge-Oxford/battenberg@v2.2.9")'
