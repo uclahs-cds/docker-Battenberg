@@ -52,7 +52,7 @@ RUN groupadd -g 500001 bldocker && \
 # Change the default user to bldocker from root
 USER bldocker
 
-LABEL   maintainer="Mohammed Faizal Eeman Mootor <MMootor@mednet.ucla.edu>" \
-        org.opencontainers.image.source=https://github.com/uclahs-cds/docker-Battenberg
+LABEL maintainer="Mohammed Faizal Eeman Mootor <MMootor@mednet.ucla.edu>" \
+      org.opencontainers.image.source=https://github.com/uclahs-cds/docker-Battenberg
 
 CMD ["/bin/bash"]         
