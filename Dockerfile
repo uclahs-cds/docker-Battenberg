@@ -32,7 +32,7 @@ RUN R -q -e 'BiocManager::install(c("curl","cpp11","lifecycle","readr","ellipsis
 # Install devtools
 RUN R -q -e 'install.packages("devtools", dependencies = TRUE)'
 
-RUN R -q -e 'devtools::install_github("Crick-CancerGenomics/ascat/ASCAT")'
+RUN R -q -e 'devtools::install_github("Crick-CancerGenomics/ascat/ASCAT@v3.1.2")'
 
 # Install Battenberg 2.2.9
 RUN R -q -e 'devtools::install_github("Wedge-Oxford/battenberg@v2.2.9")'
