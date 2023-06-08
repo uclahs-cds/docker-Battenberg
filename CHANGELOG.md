@@ -9,13 +9,14 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 ### Added
+- Add `modify_reference_path.sh`
+
+### Changed
 - Update `README.md`
 - Update Battenberg `v2.2.9`
 - Reconfigure Dockerfile
 - Standardize Battenberg resource files
 - Standardize the `docker-Battenberg` repo
-
-### Changed
 - Rename `master` to `main` branch
 
 ### Removed
