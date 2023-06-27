@@ -19,31 +19,28 @@ COPY --from=builder /usr/local /usr/local
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends libxml2 libxml2-dev libcurl4-gnutls-dev build-essential \
-    libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev r-cran-rgl git libssl-dev r-cran-curl \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends libxml2 libxml2-dev libcurl4-gnutls-dev build-essential \
+    libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev r-cran-rgl git libssl-dev r-cran-curl && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN R -q -e 'install.packages("BiocManager")'
-RUN R -q -e 'BiocManager::install(c("curl","cpp11","lifecycle","readr","ellipsis","vctrs",\
-            "GenomicRanges","IRanges","gtools", "optparse", "RColorBrewer","ggplot2",\
-            "gridExtra","doParallel","foreach", "splines", "VariantAnnotation", "copynumber"))'
+RUN R -q -e 'install.packages("BiocManager")' && \
+    R -q -e 'BiocManager::install(c("curl","cpp11","lifecycle","readr","ellipsis","vctrs",\
+        "GenomicRanges","IRanges","gtools", "optparse", "RColorBrewer","ggplot2",\
+        "gridExtra","doParallel","foreach", "splines", "VariantAnnotation", "copynumber"))'
 
-# Install devtools
-RUN R -q -e 'install.packages("devtools", dependencies = TRUE)'
-
-RUN R -q -e 'devtools::install_github("Crick-CancerGenomics/ascat/ASCAT@v3.1.2")'
-
-# Install Battenberg 2.2.9
-RUN R -q -e 'devtools::install_github("Wedge-Oxford/battenberg@v2.2.9")'
+# Install devtools, ASCAT & Battenberg
+RUN R -q -e 'install.packages("devtools", dependencies = TRUE)' && \
+    R -q -e 'devtools::install_github("Crick-CancerGenomics/ascat/ASCAT@v3.1.2")' && \
+    R -q -e 'devtools::install_github("Wedge-Oxford/battenberg@v2.2.9")'
 
 # Modify paths to reference files
 COPY modify_reference_path.sh /usr/local/bin/modify_reference_path.sh
-RUN chmod +x /usr/local/bin/modify_reference_path.sh
-RUN bash /usr/local/bin/modify_reference_path.sh /usr/local/lib/R/site-library/Battenberg/example/battenberg_wgs.R /usr/local/bin/battenberg_wgs.R
+RUN chmod +x /usr/local/bin/modify_reference_path.sh && \
+    bash /usr/local/bin/modify_reference_path.sh /usr/local/lib/R/site-library/Battenberg/example/battenberg_wgs.R /usr/local/bin/battenberg_wgs.R
 
-RUN ln -sf /usr/local/lib/R/site-library/Battenberg/example/filter_sv_brass.R /usr/local/bin/filter_sv_brass.R
-RUN ln -sf /usr/local/lib/R/site-library/Battenberg/example/battenberg_cleanup.sh /usr/local/bin/battenberg_cleanup.sh
+RUN ln -sf /usr/local/lib/R/site-library/Battenberg/example/filter_sv_brass.R /usr/local/bin/filter_sv_brass.R && \
+    ln -sf /usr/local/lib/R/site-library/Battenberg/example/battenberg_cleanup.sh /usr/local/bin/battenberg_cleanup.sh
 
 # Add a new user/group called bldocker
 RUN groupadd -g 500001 bldocker && \
@@ -55,4 +52,4 @@ USER bldocker
 LABEL maintainer="Mohammed Faizal Eeman Mootor <MMootor@mednet.ucla.edu>" \
       org.opencontainers.image.source=https://github.com/uclahs-cds/docker-Battenberg
 
-CMD ["/bin/bash"]         
+CMD ["/bin/bash"]
