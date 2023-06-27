@@ -4,6 +4,7 @@ This repository contains code for the whole genome sequencing subclonal copy num
 It installs the release v2.2.9 of Battenberg and modifies the Battenberg resource paths for GRCh37 and GRCh38 based on how they are structured in the Boutros Lab cluster.
 
 GRCh37 resources - `/hot/ref/tool-specific-input/Battenberg/download_202204/GRCh37/`
+
 GRCh38 resources -
  - with `chr` name (recommended): `/hot/ref/tool-specific-input/Battenberg/download_202204/GRCh38/battenberg_ref_hg38_chr/`
  - without `chr` name: `/hot/ref/tool-specific-input/Battenberg/download_202204/GRCh38/battenberg_ref_hg38_non_chr/`
