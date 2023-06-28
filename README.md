@@ -37,6 +37,19 @@ Battenberg GitHub repository [here](https://github.com/Wedge-lab/battenberg)
 |IMPUTE2|2.3.2|
 |ASCAT|3.1.2|
 
+---
+
+## Discussions
+
+- [Issue tracker](https://github.com/uclahs-cds/docker-Battenberg/issues) to report errors and enhancement ideas.
+- Discussions can take place in [docker-Battenberg Discussions](https://github.com/uclahs-cds/docker-Battenberg/discussions)
+- [docker-Battenberg pull requests](https://github.com/uclahs-cds/docker-Battenberg/pulls) are also open for discussion
+
+---
+
+## Contributors
+
+Please see list of [Contributors](https://github.com/uclahs-cds/docker-Battenberg/graphs/contributors) at GitHub.
 
 ---
 
