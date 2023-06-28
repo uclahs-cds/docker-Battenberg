@@ -6,7 +6,7 @@ It installs the release v2.2.9 of Battenberg and modifies the Battenberg resourc
 GRCh37 resources - `/hot/ref/tool-specific-input/Battenberg/download_202204/GRCh37/`
 
 GRCh38 resources -
- - with `chr` name (recommended): `/hot/ref/tool-specific-input/Battenberg/download_202204/GRCh38/battenberg_ref_hg38_chr/`
+ - with `chr` name (default): `/hot/ref/tool-specific-input/Battenberg/download_202204/GRCh38/battenberg_ref_hg38_chr/`
  - without `chr` name: `/hot/ref/tool-specific-input/Battenberg/download_202204/GRCh38/battenberg_ref_hg38_non_chr/`
 
 This image can be found in docker-Battenberg's GitHub package page [here](https://github.com/uclahs-cds/docker-Battenberg/pkgs/container/battenberg).
