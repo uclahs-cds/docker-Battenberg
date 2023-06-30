@@ -3,7 +3,26 @@ This repository contains code for the whole genome sequencing subclonal copy num
 
 It installs the release v2.2.9 of Battenberg and modifies the Battenberg resource paths for GRCh37 and GRCh38 based on how they are structured in the Boutros Lab cluster.
 
+GRCh37 resources - `/hot/ref/tool-specific-input/Battenberg/download_202204/GRCh37/`
+
+GRCh38 resources -
+ - with `chr` name (default): `/hot/ref/tool-specific-input/Battenberg/download_202204/GRCh38/battenberg_ref_hg38_chr/`
+ - without `chr` name: `/hot/ref/tool-specific-input/Battenberg/download_202204/GRCh38/battenberg_ref_hg38_non_chr/`
+
 This image can be found in docker-Battenberg's GitHub package page [here](https://github.com/uclahs-cds/docker-Battenberg/pkgs/container/battenberg).
+
+# Example Usage
+```
+docker run --rm -u $(id -u):$(id -g) -w $(pwd) -v /hot/:/hot/ \
+    -v /hot/ref/tool-specific-input/Battenberg/download_202204/GRCh38/battenberg_ref_hg38_chr/:/opt/battenberg_reference/ \
+    battenberg:2.2.9 Rscript /usr/local/bin/battenberg_wgs.R \
+        -t ${tumor_sample_name} \
+        -n ${normal_sample_name} \
+        --tb ${tumor_bam} \
+        --nb ${normal_bam} \
+        -o ${sample_out_dir} \
+        --sex ${sample_sex}
+```
 
 # Documentation
 Battenberg GitHub repository [here](https://github.com/Wedge-lab/battenberg)
@@ -18,6 +37,19 @@ Battenberg GitHub repository [here](https://github.com/Wedge-lab/battenberg)
 |IMPUTE2|2.3.2|
 |ASCAT|3.1.2|
 
+---
+
+## Discussions
+
+- [Issue tracker](https://github.com/uclahs-cds/docker-Battenberg/issues) to report errors and enhancement ideas.
+- Discussions can take place in [docker-Battenberg Discussions](https://github.com/uclahs-cds/docker-Battenberg/discussions)
+- [docker-Battenberg pull requests](https://github.com/uclahs-cds/docker-Battenberg/pulls) are also open for discussion
+
+---
+
+## Contributors
+
+Please see list of [Contributors](https://github.com/uclahs-cds/docker-Battenberg/graphs/contributors) at GitHub.
 
 ---
 
