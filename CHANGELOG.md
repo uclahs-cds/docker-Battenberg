@@ -10,10 +10,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [2.2.9] - 2023-06-27
 ### Added
 - Add `modify_reference_path.sh`
+- Add GRCh37 and GRCh38 resource paths to `README.md`
 
 ### Changed
 - Release `docker-Battenberg v2.2.9`
-- Add GRCh37 and GRCh38 resource paths to `README.md`
 - Update Battenberg `v2.2.9` in Dockerfile
 - Reconfigure Dockerfile
 - Standardize Battenberg resource files
