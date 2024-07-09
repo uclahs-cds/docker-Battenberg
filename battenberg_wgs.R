@@ -34,36 +34,36 @@ NTHREADS = opt$cpu;
 PRIOR_BREAKPOINTS_FILE = opt$bp;
 
 # General static
-IMPUTEINFOFILE = "/lustre/scratch117/casm/team219/sd11/reference/GenomeFiles/battenberg_impute_v3/impute_info.txt"
-G1000PREFIX = "/lustre/scratch117/casm/team219/sd11/reference/GenomeFiles/battenberg_1000genomesloci2012_v3/1000genomesAlleles2012_chr"
-G1000PREFIX_AC = "/lustre/scratch117/casm/team219/sd11/reference/GenomeFiles/battenberg_1000genomesloci2012_v3/1000genomesloci2012_chr"
-GCCORRECTPREFIX = "/lustre/scratch117/casm/team219/sd11/reference/GenomeFiles/battenberg_wgs_gc_correction_1000g_v3_noNA/1000_genomes_GC_corr_chr_"
-REPLICCORRECTPREFIX = "/lustre/scratch117/casm/team219/sd11/reference/GenomeFiles/battenberg_wgs_replic_correction_1000g_v3/1000_genomes_replication_timing_chr_"
-IMPUTE_EXE = "impute2"
+IMPUTEINFOFILE = "/opt/battenberg_reference/impute_info.txt";
+G1000PREFIX = "/opt/battenberg_reference/1000_genomes_loci/1000_genomes_allele_index_chr";
+G1000PREFIX_AC = "/opt/battenberg_reference/1000_genomes_loci/1000_genomes_loci_chr";
+GCCORRECTPREFIX = "/opt/battenberg_reference/1000_genomes_gcContent/1000_genomes_GC_corr_chr";
+REPLICCORRECTPREFIX = "/opt/battenberg_reference/battenberg_wgs_replication_timing_correction_1000_genomes/1000_genomes_replication_timing_chr";
+IMPUTE_EXE = "impute2";
 
-PLATFORM_GAMMA = 1
-PHASING_GAMMA = 1
-SEGMENTATION_GAMMA = 10
-SEGMENTATIIN_KMIN = 3
-PHASING_KMIN = 1
-CLONALITY_DIST_METRIC = 0
-ASCAT_DIST_METRIC = 1
-MIN_PLOIDY = 1.6
-MAX_PLOIDY = 4.8
-MIN_RHO = 0.1
-MIN_GOODNESS_OF_FIT = 0.63
-BALANCED_THRESHOLD = 0.51
-MIN_NORMAL_DEPTH = 10
-MIN_BASE_QUAL = 20
-MIN_MAP_QUAL = 35
-CALC_SEG_BAF_OPTION = 3
+PLATFORM_GAMMA = 1;
+PHASING_GAMMA = 1;
+SEGMENTATION_GAMMA = 10;
+SEGMENTATIIN_KMIN = 3;
+PHASING_KMIN = 1;
+CLONALITY_DIST_METRIC = 0;
+ASCAT_DIST_METRIC = 1;
+MIN_PLOIDY = 1.6;
+MAX_PLOIDY = 4.8;
+MIN_RHO = 0.1;
+MIN_GOODNESS_OF_FIT = 0.63;
+BALANCED_THRESHOLD = 0.51;
+MIN_NORMAL_DEPTH = 10;
+MIN_BASE_QUAL = 20;
+MIN_MAP_QUAL = 35;
+CALC_SEG_BAF_OPTION = 3;
 
 # WGS specific static
-ALLELECOUNTER = "alleleCounter"
-PROBLEMLOCI = "/lustre/scratch117/casm/team219/sd11/reference/GenomeFiles/battenberg_probloci/probloci_270415.txt.gz"
+ALLELECOUNTER = "alleleCounter";
+PROBLEMLOCI = "/opt/battenberg_reference/battenberg_problem_loci/probloci.txt.gz";
 
 # Change to work directory and load the chromosome information
-setwd(RUN_DIR)
+setwd(RUN_DIR);
 
 battenberg(tumourname=TUMOURNAME,
            normalname=NORMALNAME,
@@ -100,4 +100,4 @@ battenberg(tumourname=TUMOURNAME,
            skip_preprocessing=SKIP_PREPROCESSING,
            skip_phasing=SKIP_PHASING,
            prior_breakpoints_file=PRIOR_BREAKPOINTS_FILE
-           )
+           );
