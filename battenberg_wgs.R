@@ -19,7 +19,15 @@ option_list = list(
   make_option(c("--min_ploidy"), type="double", default=1.6, help="The minimum ploidy to consider", metavar="character"),
   make_option(c("--max_ploidy"), type="double", default=4.8, help="The maximum ploidy to consider", metavar="character"),
   make_option(c("--min_rho"), type="double", default=0.1, help="The minimum cellularity to consider", metavar="character"),
-  make_option(c("--max_rho"), type="double", default=1.0, help="The maximum cellularity to consider", metavar="character")
+  make_option(c("--max_rho"), type="double", default=1.0, help="The maximum cellularity to consider", metavar="character"),
+  make_option(c("--platform_gamma"), type="numeric", default=1, help="Platform specific gamma value (0.55 for SNP6, 1 for NGS)", metavar="character"),
+  make_option(c("--phasing_gamma"), type="numeric", default=1, help="Gamma parameter used when correcting phasing mistakes (Default: 1)", metavar="character"),
+  make_option(c("--segmentation_gamma"), type="numeric", default=10, help="The gamma parameter controls the size of the penalty of starting a new segment during segmentation. It is therefore the key parameter for controlling the number of segments (Default: 10)", metavar="character")
+  #,
+  #make_option(c("--"), type="", default=, help="", metavar="character"),
+  #make_option(c("--"), type="", default=, help="", metavar="character"),
+  #make_option(c("--"), type="", default=, help="", metavar="character"),
+  #make_option(c("--"), type="", default=, help="", metavar="character"),
   );
 
 opt_parser = OptionParser(option_list=option_list);
@@ -40,6 +48,9 @@ MIN_PLOIDY = opt$min_ploidy;
 MAX_PLOIDY = opt$max_ploidy;
 MIN_RHO = opt$min_rho;
 MAX_RHO = opt$max_rho;
+PLATFORM_GAMMA = opt$platform_gamma;
+PHASING_GAMMA = opt$phasing_gamma;
+SEGMENTATION_GAMMA = opt$segmentation_gamma;
 
 # General static
 IMPUTEINFOFILE = "/opt/battenberg_reference/impute_info.txt";
@@ -49,9 +60,6 @@ GCCORRECTPREFIX = "/opt/battenberg_reference/1000_genomes_gcContent/1000_genomes
 REPLICCORRECTPREFIX = "/opt/battenberg_reference/battenberg_wgs_replication_timing_correction_1000_genomes/1000_genomes_replication_timing_chr";
 IMPUTE_EXE = "impute2";
 
-PLATFORM_GAMMA = 1;
-PHASING_GAMMA = 1;
-SEGMENTATION_GAMMA = 10;
 SEGMENTATIIN_KMIN = 3;
 PHASING_KMIN = 1;
 CLONALITY_DIST_METRIC = 0;
