@@ -19,7 +19,6 @@ option_list <- list(
     make_option(c("--min_ploidy"), type="double", default=1.6, help="The minimum ploidy to consider", metavar="character"),
     make_option(c("--max_ploidy"), type="double", default=4.8, help="The maximum ploidy to consider", metavar="character"),
     make_option(c("--min_rho"), type="double", default=0.1, help="The minimum cellularity to consider", metavar="character"),
-    make_option(c("--max_rho"), type="double", default=1.0, help="The maximum cellularity to consider", metavar="character"),
     make_option(c("--platform_gamma"), type="numeric", default=1, help="Platform specific gamma value (0.55 for SNP6, 1 for NGS)", metavar="character"),
     make_option(c("--phasing_gamma"), type="numeric", default=1, help="Gamma parameter used when correcting phasing mistakes (Default: 1)", metavar="character"),
     make_option(c("--segmentation_gamma"), type="numeric", default=10, help="The gamma parameter controls the size of the penalty of starting a new segment during segmentation. It is therefore the key parameter for controlling the number of segments (Default: 10)", metavar="character"),
@@ -53,11 +52,10 @@ PRIOR_BREAKPOINTS_FILE <- opt$bp;
 MIN_PLOIDY <- opt$min_ploidy;
 MAX_PLOIDY <- opt$max_ploidy;
 MIN_RHO <- opt$min_rho;
-MAX_RHO <- opt$max_rho;
 PLATFORM_GAMMA <- opt$platform_gamma;
 PHASING_GAMMA <- opt$phasing_gamma;
 SEGMENTATION_GAMMA <- opt$segmentation_gamma;
-SEGMENTATIIN_KMIN <- opt$segmentation_kmin;
+SEGMENTATION_KMIN <- opt$segmentation_kmin;
 PHASING_KMIN <- opt$phasing_kmin;
 CLONALITY_DIST_METRIC <- opt$clonality_dist_metric;
 ASCAT_DIST_METRIC <- opt$ascat_dist_metric;
@@ -103,7 +101,7 @@ battenberg(
     platform_gamma=PLATFORM_GAMMA,
     phasing_gamma=PHASING_GAMMA,
     segmentation_gamma=SEGMENTATION_GAMMA,
-    segmentation_kmin=SEGMENTATIIN_KMIN,
+    segmentation_kmin=SEGMENTATION_KMIN,
     phasing_kmin=PHASING_KMIN,
     clonality_dist_metric=CLONALITY_DIST_METRIC,
     ascat_dist_metric=ASCAT_DIST_METRIC,
