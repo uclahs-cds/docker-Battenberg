@@ -87,7 +87,7 @@ battenberg(
     normalname = NORMALNAME,
     tumour_data_file = TUMOURBAM,
     normal_data_file = NORMALBAM,
-    ismale=IS.MALE,
+    ismale = IS.MALE,
     imputeinfofile = IMPUTEINFOFILE,
     g1000prefix = G1000PREFIX,
     g1000allelesprefix = G1000PREFIX.AC,
