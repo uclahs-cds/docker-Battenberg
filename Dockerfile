@@ -30,14 +30,14 @@ RUN R -q -e 'install.packages("BiocManager")' && \
         "gridExtra","doParallel","foreach", "splines", "VariantAnnotation", "copynumber"))'
 
 # Install devtools, ASCAT & Battenberg
+FROM r-base:latest
 RUN R -q -e 'install.packages("devtools", dependencies = TRUE)' && \
     R -q -e 'devtools::install_github("Crick-CancerGenomics/ascat/ASCAT@v3.1.2")' && \
     R -q -e 'devtools::install_github("Wedge-Oxford/battenberg@v2.2.9")'
 
-# Modify paths to reference files
-COPY modify_reference_path.sh /usr/local/bin/modify_reference_path.sh
-RUN chmod +x /usr/local/bin/modify_reference_path.sh && \
-    bash /usr/local/bin/modify_reference_path.sh /usr/local/lib/R/site-library/Battenberg/example/battenberg_wgs.R /usr/local/bin/battenberg_wgs.R
+# Add custom Battenberg R wrapper
+COPY battenberg_wgs.R /usr/local/bin/battenberg_wgs.R
+RUN chmod +x /usr/local/bin/battenberg_wgs.R
 
 RUN ln -sf /usr/local/lib/R/site-library/Battenberg/example/filter_sv_brass.R /usr/local/bin/filter_sv_brass.R && \
     ln -sf /usr/local/lib/R/site-library/Battenberg/example/battenberg_cleanup.sh /usr/local/bin/battenberg_cleanup.sh

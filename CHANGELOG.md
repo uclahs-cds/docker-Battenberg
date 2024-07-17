@@ -6,8 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## Unreleased
+### Added
+- Add custom `battenberg_wgs.R`
 
-## [2.2.9] - 2023-06-27
+### Removed
+- Remove `modify_reference_path.sh`
+
+## [2.2.9] - 2023-06-27 [YANKED]
 ### Added
 - Add `modify_reference_path.sh`
 - Add GRCh37 and GRCh38 resource paths to `README.md`
