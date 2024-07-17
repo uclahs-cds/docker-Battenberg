@@ -30,6 +30,7 @@ RUN R -q -e 'install.packages("BiocManager")' && \
         "gridExtra","doParallel","foreach", "splines", "VariantAnnotation", "copynumber"))'
 
 # Install devtools, ASCAT & Battenberg
+FROM r-base:latest
 RUN R -q -e 'install.packages("devtools", dependencies = TRUE)' && \
     R -q -e 'devtools::install_github("Crick-CancerGenomics/ascat/ASCAT@v3.1.2")' && \
     R -q -e 'devtools::install_github("Wedge-Oxford/battenberg@v2.2.9")'
