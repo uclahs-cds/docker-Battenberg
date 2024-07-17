@@ -17,6 +17,8 @@ RUN mamba create -qy -p /usr/local \
 FROM ubuntu:20.04
 COPY --from=builder /usr/local /usr/local
 
+FROM r-base:latest
+
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
@@ -30,17 +32,19 @@ RUN R -q -e 'install.packages("BiocManager")' && \
         "gridExtra","doParallel","foreach", "splines", "VariantAnnotation", "copynumber"))'
 
 # Install devtools, ASCAT & Battenberg
-RUN R -q -e 'install.packages("devtools", dependencies = TRUE)' && \
-    R -q -e 'devtools::install_github("Crick-CancerGenomics/ascat/ASCAT@v3.1.2")' && \
-    R -q -e 'devtools::install_github("Wedge-Oxford/battenberg@v2.2.9")'
+COPY installer.R /usr/local/bin/installer.R
+RUN R -q -e 'install.packages(c("argparse", "pkgdepends"), lib = "/usr/lib/R/site-library")' && \
+    chmod +x /usr/local/bin/installer.R
+#RUN Rscript /usr/local/bin/installer.R -r "Crick-CancerGenomics/ascat/ASCAT" -av "3.1.2"
+#RUN Rscript /usr/local/bin/installer.R -r "Wedge-Oxford/battenberg" -av "2.2.9"
 
 # Modify paths to reference files
-COPY modify_reference_path.sh /usr/local/bin/modify_reference_path.sh
-RUN chmod +x /usr/local/bin/modify_reference_path.sh && \
-    bash /usr/local/bin/modify_reference_path.sh /usr/local/lib/R/site-library/Battenberg/example/battenberg_wgs.R /usr/local/bin/battenberg_wgs.R
+#COPY modify_reference_path.sh /usr/local/bin/modify_reference_path.sh
+#RUN chmod +x /usr/local/bin/modify_reference_path.sh && \
+#    bash /usr/local/bin/modify_reference_path.sh /usr/local/lib/R/site-library/Battenberg/example/battenberg_wgs.R /usr/local/bin/battenberg_wgs.R
 
-RUN ln -sf /usr/local/lib/R/site-library/Battenberg/example/filter_sv_brass.R /usr/local/bin/filter_sv_brass.R && \
-    ln -sf /usr/local/lib/R/site-library/Battenberg/example/battenberg_cleanup.sh /usr/local/bin/battenberg_cleanup.sh
+#RUN ln -sf /usr/local/lib/R/site-library/Battenberg/example/filter_sv_brass.R /usr/local/bin/filter_sv_brass.R && \
+#    ln -sf /usr/local/lib/R/site-library/Battenberg/example/battenberg_cleanup.sh /usr/local/bin/battenberg_cleanup.sh
 
 # Add a new user/group called bldocker
 RUN groupadd -g 500001 bldocker && \
