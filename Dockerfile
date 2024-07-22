@@ -39,7 +39,7 @@ RUN Rscript /usr/local/bin/installer.R -l ${LIBRARY} -d ${COPYNUMBER} ${ASCAT} $
 # Modify paths to reference files
 COPY modify_reference_path.sh /usr/local/bin/modify_reference_path.sh
 RUN chmod +x /usr/local/bin/modify_reference_path.sh && \
-    bash /usr/local/bin/modify_reference_path.sh /usr/local/lib/R/site-library/Battenberg/example/battenberg_wgs.R /usr/local/bin/battenberg_wgs.R
+    bash /usr/local/bin/modify_reference_path.sh /usr/lib/R/site-library/Battenberg/example/battenberg_wgs.R /usr/local/bin/battenberg_wgs.R
 
 RUN ln -sf /usr/local/lib/R/site-library/Battenberg/example/filter_sv_brass.R /usr/local/bin/filter_sv_brass.R && \
     ln -sf /usr/local/lib/R/site-library/Battenberg/example/battenberg_cleanup.sh /usr/local/bin/battenberg_cleanup.sh
