@@ -1,50 +1,48 @@
-ARG MINIFORGE_VERSION=23.1.0-1
-
-FROM condaforge/mambaforge:${MINIFORGE_VERSION} AS builder
-
-# Use mamba to install tools and dependencies into /usr/local
-ARG HTSLIB_VERSION=1.16
-ARG ALLELECOUNT_VERSION=4.3.0
-ARG IMPUTE2_VERSION=2.3.2
-RUN mamba create -qy -p /usr/local \
-    -c bioconda \
-    -c conda-forge \
-    htslib==${HTSLIB_VERSION} \
-    cancerit-allelecount==${ALLELECOUNT_VERSION} \
-    impute2==${IMPUTE2_VERSION}
-
-# Deploy the target tools into a base image
 FROM ubuntu:20.04
-COPY --from=builder /usr/local /usr/local
+FROM r-base:4.4.1
 
-FROM r-base:latest
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        libcurl4-openssl-dev \
+        libbz2-dev \
+        liblzma-dev \
+        libpng-dev \
+        libssl-dev \
+        libxml2-dev \
+        python3
 
-ARG DEBIAN_FRONTEND=noninteractive
+# Main tool version
+ARG BATTENBERG_VERSION=2.2.9
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends libxml2 libxml2-dev libcurl4-gnutls-dev build-essential \
-    libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev r-cran-rgl git libssl-dev r-cran-curl && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# Dependency version or commit ID
+ARG ASCAT_VERSION=3.1.3
+ARG COPYNUMBER_VERSION="b404a4d"
 
-RUN R -q -e 'install.packages("BiocManager")' && \
-    R -q -e 'BiocManager::install(c("curl","cpp11","lifecycle","readr","ellipsis","vctrs",\
-        "GenomicRanges","IRanges","gtools", "optparse", "RColorBrewer","ggplot2",\
-        "gridExtra","doParallel","foreach", "splines", "VariantAnnotation", "copynumber"))'
+# GitHub repo link
+ARG ASCAT="VanLoo-lab/ascat/ASCAT@v${ASCAT_VERSION}"
+ARG COPYNUMBER="igordot/copynumber@${COPYNUMBER_VERSION}"
+ARG BATTENBERG="Wedge-lab/battenberg@v${BATTENBERG_VERSION}"
 
-# Install devtools, ASCAT & Battenberg
+# R library path to install the above packages
+ARG LIBRARY="/usr/lib/R/site-library"
+
+# Install Package Dependency toolkit
+RUN library=${LIBRARY} R -e 'install.packages(c("argparse", "pkgdepends"), lib = Sys.getenv("library"))'
+
+# Install Battenberg
 COPY installer.R /usr/local/bin/installer.R
-RUN R -q -e 'install.packages(c("argparse", "pkgdepends"), lib = "/usr/lib/R/site-library")' && \
-    chmod +x /usr/local/bin/installer.R
-#RUN Rscript /usr/local/bin/installer.R -r "Crick-CancerGenomics/ascat/ASCAT" -av "3.1.2"
-#RUN Rscript /usr/local/bin/installer.R -r "Wedge-Oxford/battenberg" -av "2.2.9"
+
+RUN chmod +x /usr/local/bin/installer.R
+
+RUN Rscript /usr/local/bin/installer.R -l ${LIBRARY} -d ${COPYNUMBER} ${ASCAT} ${BATTENBERG}
 
 # Modify paths to reference files
-#COPY modify_reference_path.sh /usr/local/bin/modify_reference_path.sh
-#RUN chmod +x /usr/local/bin/modify_reference_path.sh && \
-#    bash /usr/local/bin/modify_reference_path.sh /usr/local/lib/R/site-library/Battenberg/example/battenberg_wgs.R /usr/local/bin/battenberg_wgs.R
+COPY modify_reference_path.sh /usr/local/bin/modify_reference_path.sh
+RUN chmod +x /usr/local/bin/modify_reference_path.sh && \
+    bash /usr/local/bin/modify_reference_path.sh /usr/local/lib/R/site-library/Battenberg/example/battenberg_wgs.R /usr/local/bin/battenberg_wgs.R
 
-#RUN ln -sf /usr/local/lib/R/site-library/Battenberg/example/filter_sv_brass.R /usr/local/bin/filter_sv_brass.R && \
-#    ln -sf /usr/local/lib/R/site-library/Battenberg/example/battenberg_cleanup.sh /usr/local/bin/battenberg_cleanup.sh
+RUN ln -sf /usr/local/lib/R/site-library/Battenberg/example/filter_sv_brass.R /usr/local/bin/filter_sv_brass.R && \
+    ln -sf /usr/local/lib/R/site-library/Battenberg/example/battenberg_cleanup.sh /usr/local/bin/battenberg_cleanup.sh
 
 # Add a new user/group called bldocker
 RUN groupadd -g 500001 bldocker && \
