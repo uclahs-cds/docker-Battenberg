@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## Unreleased
+### Chanded
+- Use the official `r-base:4.4.1` docker image
+- Replace GitHub package installation with `pkgdepends`
+
+### Added
+- Add installer.R that uses `pkgdepends`
+
+---
 
 ## [2.2.9] - 2023-06-27
 ### Added
