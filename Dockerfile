@@ -1,5 +1,21 @@
+ARG MINIFORGE_VERSION=23.1.0-1
+
+FROM condaforge/mambaforge:${MINIFORGE_VERSION} AS builder
+
+# Use mamba to install tools and dependencies into /usr/local
+ARG HTSLIB_VERSION=1.16
+ARG ALLELECOUNT_VERSION=4.3.0
+ARG IMPUTE2_VERSION=2.3.2
+RUN mamba create -qy -p /usr/local \
+    -c bioconda \
+    -c conda-forge \
+    htslib==${HTSLIB_VERSION} \
+    cancerit-allelecount==${ALLELECOUNT_VERSION} \
+    impute2==${IMPUTE2_VERSION}
+
 FROM ubuntu:20.04
 FROM r-base:4.4.1
+COPY --from=builder /usr/local /usr/local
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -12,7 +28,7 @@ RUN apt-get update \
         python3
 
 # Main tool version
-ARG BATTENBERG_VERSION=2.2.9
+ARG BATTENBERG_VERSION="2.2.9"
 
 # Dependency version or commit ID
 ARG ASCAT_VERSION=3.1.3
@@ -27,11 +43,11 @@ ARG BATTENBERG="Wedge-lab/battenberg@v${BATTENBERG_VERSION}"
 ARG LIBRARY="/usr/lib/R/site-library"
 
 # Install Package Dependency toolkit
-RUN library=${LIBRARY} R -e 'install.packages(c("argparse", "pkgdepends"), lib = Sys.getenv("library"))'
+RUN library=${LIBRARY} R -e 'install.packages(c("argparse", "BiocManager", "pkgdepends", "optparse"), lib = Sys.getenv("library"))' &&\
+    R -q -e 'BiocManager::install(c("ellipsis", "splines", "VariantAnnotation"))'
 
 # Install Battenberg
 COPY installer.R /usr/local/bin/installer.R
-
 RUN chmod +x /usr/local/bin/installer.R
 
 RUN Rscript /usr/local/bin/installer.R -l ${LIBRARY} -d ${COPYNUMBER} ${ASCAT} ${BATTENBERG}
