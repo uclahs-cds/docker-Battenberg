@@ -25,7 +25,8 @@ RUN apt-get update \
         libpng-dev \
         libssl-dev \
         libxml2-dev \
-        python3
+        python3 \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Main tool version
 ARG BATTENBERG_VERSION="2.2.9"
