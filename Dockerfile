@@ -44,7 +44,7 @@ ARG BATTENBERG="Wedge-lab/battenberg@v${BATTENBERG_VERSION}"
 ARG LIBRARY="/usr/lib/R/site-library"
 
 # Install Package Dependency toolkit
-RUN library=${LIBRARY} R -e 'install.packages(c("argparse", "BiocManager", "pkgdepends", "optparse"), lib = Sys.getenv("library"))' &&\
+RUN library=${LIBRARY} R -e 'install.packages(c("argparse", "BiocManager", "pkgdepends", "optparse"), lib = Sys.getenv("library"))' && \
     R -q -e 'BiocManager::install(c("ellipsis", "splines", "VariantAnnotation"))'
 
 # Install Battenberg
