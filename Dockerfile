@@ -13,31 +13,50 @@ RUN mamba create -qy -p /usr/local \
     cancerit-allelecount==${ALLELECOUNT_VERSION} \
     impute2==${IMPUTE2_VERSION}
 
-# Deploy the target tools into a base image
 FROM ubuntu:20.04
+FROM r-base:4.4.1
 COPY --from=builder /usr/local /usr/local
 
-ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        libcurl4-openssl-dev \
+        libbz2-dev \
+        liblzma-dev \
+        libpng-dev \
+        libssl-dev \
+        libxml2-dev \
+        python3 \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends libxml2 libxml2-dev libcurl4-gnutls-dev build-essential \
-    libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev r-cran-rgl git libssl-dev r-cran-curl && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# Main tool version
+ARG BATTENBERG_VERSION="2.2.9"
 
-RUN R -q -e 'install.packages("BiocManager")' && \
-    R -q -e 'BiocManager::install(c("curl","cpp11","lifecycle","readr","ellipsis","vctrs",\
-        "GenomicRanges","IRanges","gtools", "optparse", "RColorBrewer","ggplot2",\
-        "gridExtra","doParallel","foreach", "splines", "VariantAnnotation", "copynumber"))'
+# Dependency version or commit ID
+ARG ASCAT_VERSION=3.1.3
+ARG COPYNUMBER_VERSION="b404a4d"
 
-# Install devtools, ASCAT & Battenberg
-RUN R -q -e 'install.packages("devtools", dependencies = TRUE)' && \
-    R -q -e 'devtools::install_github("Crick-CancerGenomics/ascat/ASCAT@v3.1.2")' && \
-    R -q -e 'devtools::install_github("Wedge-Oxford/battenberg@v2.2.9")'
+# GitHub repo link
+ARG ASCAT="VanLoo-lab/ascat/ASCAT@v${ASCAT_VERSION}"
+ARG COPYNUMBER="igordot/copynumber@${COPYNUMBER_VERSION}"
+ARG BATTENBERG="Wedge-lab/battenberg@v${BATTENBERG_VERSION}"
+
+# R library path to install the above packages
+ARG LIBRARY="/usr/lib/R/site-library"
+
+# Install Package Dependency toolkit
+RUN library=${LIBRARY} R -e 'install.packages(c("argparse", "BiocManager", "pkgdepends", "optparse"), lib = Sys.getenv("library"))' && \
+    R -q -e 'BiocManager::install(c("ellipsis", "splines", "VariantAnnotation"))'
+
+# Install Battenberg
+COPY installer.R /usr/local/bin/installer.R
+RUN chmod +x /usr/local/bin/installer.R
+
+RUN Rscript /usr/local/bin/installer.R -l ${LIBRARY} -d ${COPYNUMBER} ${ASCAT} ${BATTENBERG}
 
 # Modify paths to reference files
 COPY modify_reference_path.sh /usr/local/bin/modify_reference_path.sh
 RUN chmod +x /usr/local/bin/modify_reference_path.sh && \
-    bash /usr/local/bin/modify_reference_path.sh /usr/local/lib/R/site-library/Battenberg/example/battenberg_wgs.R /usr/local/bin/battenberg_wgs.R
+    bash /usr/local/bin/modify_reference_path.sh /usr/lib/R/site-library/Battenberg/example/battenberg_wgs.R /usr/local/bin/battenberg_wgs.R
 
 RUN ln -sf /usr/local/lib/R/site-library/Battenberg/example/filter_sv_brass.R /usr/local/bin/filter_sv_brass.R && \
     ln -sf /usr/local/lib/R/site-library/Battenberg/example/battenberg_cleanup.sh /usr/local/bin/battenberg_cleanup.sh
