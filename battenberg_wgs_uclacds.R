@@ -70,8 +70,6 @@ REPLICCORRECTPREFIX = "/opt/battenberg_reference/battenberg_wgs_replication_timi
 # General static
 if (GENOMEBUILD=="hg19") {
 	impute_basedir = "/hps/research/gerstung/sdentro/reference/human/battenberg/"
-
-	# WGS specific static
 	GENOME_VERSION = "b37"
 	GENOMEBUILD = "hg19"
 	BEAGLE_BASEDIR = "/hps/research/gerstung/sdentro/reference/human/battenberg/battenberg_beagle"
