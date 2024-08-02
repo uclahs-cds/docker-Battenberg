@@ -29,7 +29,7 @@ RUN apt-get update \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Main tool version
-ARG BATTENBERG_VERSION="2.2.9"
+ARG BATTENBERG_VERSION="dev"
 
 # Dependency version or commit ID
 ARG ASCAT_VERSION=3.1.3
@@ -38,7 +38,7 @@ ARG COPYNUMBER_VERSION="b404a4d"
 # GitHub repo link
 ARG ASCAT="VanLoo-lab/ascat/ASCAT@v${ASCAT_VERSION}"
 ARG COPYNUMBER="igordot/copynumber@${COPYNUMBER_VERSION}"
-ARG BATTENBERG="Wedge-lab/battenberg@v${BATTENBERG_VERSION}"
+ARG BATTENBERG="Wedge-lab/battenberg@${BATTENBERG_VERSION}"
 
 # R library path to install the above packages
 ARG LIBRARY="/usr/lib/R/site-library"
@@ -53,10 +53,9 @@ RUN chmod +x /usr/local/bin/installer.R
 
 RUN Rscript /usr/local/bin/installer.R -l ${LIBRARY} -d ${COPYNUMBER} ${ASCAT} ${BATTENBERG}
 
-# Modify paths to reference files
-COPY modify_reference_path.sh /usr/local/bin/modify_reference_path.sh
-RUN chmod +x /usr/local/bin/modify_reference_path.sh && \
-    bash /usr/local/bin/modify_reference_path.sh /usr/lib/R/site-library/Battenberg/example/battenberg_wgs.R /usr/local/bin/battenberg_wgs.R
+# Add uclahscds Battenberg WGS wrapper
+COPY battenberg_wgs_uclacds.R /usr/local/bin/battenberg_wgs_uclacds.R
+RUN chmod +x /usr/local/bin/battenberg_wgs_uclacds.R
 
 RUN ln -sf /usr/local/lib/R/site-library/Battenberg/example/filter_sv_brass.R /usr/local/bin/filter_sv_brass.R && \
     ln -sf /usr/local/lib/R/site-library/Battenberg/example/battenberg_cleanup.sh /usr/local/bin/battenberg_cleanup.sh
