@@ -54,8 +54,8 @@ RUN chmod +x /usr/local/bin/installer.R
 RUN Rscript /usr/local/bin/installer.R -l ${LIBRARY} -d ${COPYNUMBER} ${ASCAT} ${BATTENBERG}
 
 # Add uclahscds Battenberg WGS wrapper
-COPY battenberg_wgs_uclacds.R /usr/local/bin/battenberg_wgs_uclacds.R
-RUN chmod +x /usr/local/bin/battenberg_wgs_uclacds.R
+COPY battenberg_wgs_uclahscds.R /usr/local/bin/battenberg_wgs_uclahscds.R
+RUN chmod +x /usr/local/bin/battenberg_wgs_uclahscds.R
 
 RUN ln -sf /usr/local/lib/R/site-library/Battenberg/example/filter_sv_brass.R /usr/local/bin/filter_sv_brass.R && \
     ln -sf /usr/local/lib/R/site-library/Battenberg/example/battenberg_cleanup.sh /usr/local/bin/battenberg_cleanup.sh
