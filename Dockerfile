@@ -13,8 +13,7 @@ RUN mamba create -qy -p /usr/local \
     cancerit-allelecount==${ALLELECOUNT_VERSION} \
     impute2==${IMPUTE2_VERSION}
 
-FROM ubuntu:20.04
-FROM r-base:4.4.1
+FROM rocker/r-ver:4.4.1
 COPY --from=builder /usr/local /usr/local
 
 RUN apt-get update \
