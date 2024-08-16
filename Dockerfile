@@ -13,8 +13,7 @@ RUN mamba create -qy -p /usr/local \
     cancerit-allelecount==${ALLELECOUNT_VERSION} \
     impute2==${IMPUTE2_VERSION}
 
-FROM ubuntu:20.04
-FROM r-base:4.4.1
+FROM rocker/r-ver:4.4.1
 COPY --from=builder /usr/local /usr/local
 
 RUN apt-get update \
@@ -40,23 +39,20 @@ ARG ASCAT="VanLoo-lab/ascat/ASCAT@v${ASCAT_VERSION}"
 ARG COPYNUMBER="igordot/copynumber@${COPYNUMBER_VERSION}"
 ARG BATTENBERG="Wedge-lab/battenberg@v${BATTENBERG_VERSION}"
 
-# R library path to install the above packages
-ARG LIBRARY="/usr/lib/R/site-library"
-
 # Install Package Dependency toolkit
-RUN library=${LIBRARY} R -e 'install.packages(c("argparse", "BiocManager", "pkgdepends", "optparse"), lib = Sys.getenv("library"))' && \
+RUN R -e 'install.packages(c("argparse", "BiocManager", "pkgdepends", "optparse"))' && \
     R -q -e 'BiocManager::install(c("ellipsis", "splines", "VariantAnnotation"))'
 
 # Install Battenberg
 COPY installer.R /usr/local/bin/installer.R
 RUN chmod +x /usr/local/bin/installer.R
 
-RUN Rscript /usr/local/bin/installer.R -l ${LIBRARY} -d ${COPYNUMBER} ${ASCAT} ${BATTENBERG}
+RUN Rscript /usr/local/bin/installer.R -d ${COPYNUMBER} ${ASCAT} ${BATTENBERG}
 
 # Modify paths to reference files
 COPY modify_reference_path.sh /usr/local/bin/modify_reference_path.sh
 RUN chmod +x /usr/local/bin/modify_reference_path.sh && \
-    bash /usr/local/bin/modify_reference_path.sh /usr/lib/R/site-library/Battenberg/example/battenberg_wgs.R /usr/local/bin/battenberg_wgs.R
+    bash /usr/local/bin/modify_reference_path.sh /usr/local/lib/R/site-library/Battenberg/example/battenberg_wgs.R /usr/local/bin/battenberg_wgs.R
 
 RUN ln -sf /usr/local/lib/R/site-library/Battenberg/example/filter_sv_brass.R /usr/local/bin/filter_sv_brass.R && \
     ln -sf /usr/local/lib/R/site-library/Battenberg/example/battenberg_cleanup.sh /usr/local/bin/battenberg_cleanup.sh
