@@ -28,7 +28,7 @@ RUN apt-get update \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Main tool version
-ARG BATTENBERG_VERSION="dev"
+ARG BATTENBERG_VERSION="b88b2de"
 
 # Dependency version or commit ID
 ARG ASCAT_VERSION=3.1.3
