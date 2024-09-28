@@ -19,6 +19,7 @@ option.list <- list(
     make_option(c('--min_ploidy'), type = 'double', default = 1.6, help = 'The minimum ploidy to consider', metavar = 'character'),
     make_option(c('--max_ploidy'), type = 'double', default = 4.8, help = 'The maximum ploidy to consider', metavar = 'character'),
     make_option(c('--min_rho'), type = 'double', default = 0.1, help = 'The minimum cellularity to consider', metavar = 'character'),
+    make_option(c('--max_rho'), type = 'double', default = 1.0, help = 'The maximum cellularity to consider', metavar = 'character'),
     make_option(c('--platform_gamma'), type = 'numeric', default = 1, help = 'Platform specific gamma value (0.55 for SNP6, 1 for NGS)', metavar = 'character'),
     make_option(c('--phasing_gamma'), type = 'numeric', default = 1, help = 'Gamma parameter used when correcting phasing mistakes (Default: 1)', metavar = 'character'),
     make_option(c('--segmentation_gamma'), type = 'numeric', default = 10, help = 'The gamma parameter controls the size of the penalty of starting a new segment during segmentation. It is therefore the key parameter for controlling the number of segments (Default: 10)', metavar = 'character'),
