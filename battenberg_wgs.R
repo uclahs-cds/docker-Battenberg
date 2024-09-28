@@ -110,6 +110,7 @@ battenberg(
     min_ploidy = MIN.PLOIDY,
     max_ploidy = MAX.PLOIDY,
     min_rho = MIN.RHO,
+    max_rho = MAX.RHO,
     min_goodness = MIN.GOODNESS.OF.FIT,
     uninformative_BAF_threshold = BALANCED.THRESHOLD,
     min_normal_depth = MIN.NORMAL.DEPTH,
