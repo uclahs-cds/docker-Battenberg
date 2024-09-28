@@ -53,6 +53,7 @@ PRIOR.BREAKPOINTS.FILE <- opt$bp;
 MIN.PLOIDY <- opt$min_ploidy;
 MAX.PLOIDY <- opt$max_ploidy;
 MIN.RHO <- opt$min_rho;
+MAX.RHO <- opt$max_rho;
 PLATFORM.GAMMA <- opt$platform_gamma;
 PHASING.GAMMA <- opt$phasing_gamma;
 SEGMENTATION.GAMMA <- opt$segmentation_gamma;
