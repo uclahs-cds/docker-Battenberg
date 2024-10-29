@@ -49,6 +49,9 @@ COPY renv.lock /usr/local/renv.lock
 COPY battenberg_bl_custom.R /usr/local/src/
 COPY battenberg_wgs_bl_custom.R /usr/local/src/
 
+ARG ASCAT_VERSION
+ARG BATTENBERG_VERSION
+
 RUN set -eux && \
     # Ignore specific packages from `renv.lock` file
     R -q -e 'renv::settings$ignored.packages(c("ASCAT", "Battenberg"))' && \
