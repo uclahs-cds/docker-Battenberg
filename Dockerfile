@@ -13,49 +13,48 @@ RUN mamba create -qy -p /usr/local \
     cancerit-allelecount==${ALLELECOUNT_VERSION} \
     impute2==${IMPUTE2_VERSION}
 
-FROM rocker/r-ver:4.4.1
+# Deploy the target tools into a base image
+FROM ubuntu:20.04
 COPY --from=builder /usr/local /usr/local
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        libcurl4-openssl-dev \
-        libbz2-dev \
-        liblzma-dev \
-        libpng-dev \
-        libssl-dev \
-        libxml2-dev \
-        python3 \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+ARG DEBIAN_FRONTEND=noninteractive
 
-# Main tool version
-ARG BATTENBERG_VERSION="2.2.9"
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    libxml2 \
+    libxml2-dev \
+    libcurl4-gnutls-dev \
+    build-essential \
+    libfontconfig1-dev \
+    libharfbuzz-dev \
+    libfribidi-dev \
+    libfreetype6-dev \
+    libpng-dev \
+    libtiff5-dev \
+    libjpeg-dev \
+    r-cran-rgl \
+    git \
+    libssl-dev \
+    r-cran-curl \
+    r-cran-devtools \
+    wget && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Dependency version or commit ID
-ARG ASCAT_VERSION=3.1.3
-ARG COPYNUMBER_VERSION="b404a4d"
+RUN R -q -e 'install.packages("renv")'
+COPY renv.lock /usr/local/renv.lock
+RUN R -q -e 'renv::settings$ignored.packages(c("ASCAT", "Battenberg"))'
+RUN R -q -e 'renv::restore(lockfile = "/usr/local/renv.lock")'
 
-# GitHub repo link
-ARG ASCAT="VanLoo-lab/ascat/ASCAT@v${ASCAT_VERSION}"
-ARG COPYNUMBER="igordot/copynumber@${COPYNUMBER_VERSION}"
-ARG BATTENBERG="Wedge-lab/battenberg@v${BATTENBERG_VERSION}"
+RUN wget -P /usr/local/ https://github.com/VanLoo-lab/ascat/archive/refs/tags/v3.1.2.tar.gz
+RUN tar -xvzf /usr/local/v3.1.2.tar.gz -C /usr/local/
+RUN R CMD INSTALL /usr/local/ascat-3.1.2/ASCAT/
 
-# Install Package Dependency toolkit
-RUN R -e 'install.packages(c("argparse", "BiocManager", "pkgdepends", "optparse"))' && \
-    R -q -e 'BiocManager::install(c("ellipsis", "splines", "VariantAnnotation"))'
+RUN wget -P /usr/local/ https://github.com/Wedge-lab/battenberg/archive/refs/tags/v2.2.9.tar.gz
+RUN tar -xvzf /usr/local/v2.2.9.tar.gz -C /usr/local/
+COPY battenberg_bl_custom.R /usr/local/battenberg-2.2.9/R/battenberg.R
+COPY battenberg_wgs_bl_custom.R /usr/local/battenberg-2.2.9/inst/example/battenberg_wgs.R
 
-# Install Battenberg
-COPY installer.R /usr/local/bin/installer.R
-RUN chmod +x /usr/local/bin/installer.R
-
-RUN Rscript /usr/local/bin/installer.R -d ${COPYNUMBER} ${ASCAT} ${BATTENBERG}
-
-# Modify paths to reference files
-COPY modify_reference_path.sh /usr/local/bin/modify_reference_path.sh
-RUN chmod +x /usr/local/bin/modify_reference_path.sh && \
-    bash /usr/local/bin/modify_reference_path.sh /usr/local/lib/R/site-library/Battenberg/example/battenberg_wgs.R /usr/local/bin/battenberg_wgs.R
-
-RUN ln -sf /usr/local/lib/R/site-library/Battenberg/example/filter_sv_brass.R /usr/local/bin/filter_sv_brass.R && \
-    ln -sf /usr/local/lib/R/site-library/Battenberg/example/battenberg_cleanup.sh /usr/local/bin/battenberg_cleanup.sh
+RUN R CMD INSTALL /usr/local/battenberg-2.2.9/
 
 # Add a new user/group called bldocker
 RUN groupadd -g 500001 bldocker && \
