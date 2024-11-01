@@ -1,4 +1,6 @@
 ARG MINIFORGE_VERSION=23.1.0-1
+ARG ASCAT_VERSION=3.1.2
+ARG BATTENBERG_VERSION=2.2.9
 
 FROM condaforge/mambaforge:${MINIFORGE_VERSION} AS builder
 
@@ -40,21 +42,33 @@ RUN apt-get update && \
     wget && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN R -q -e 'install.packages("renv")'
+RUN R -q -e 'install.packages("renv")' && \
+    mkdir -p /usr/local/src
+
 COPY renv.lock /usr/local/renv.lock
-RUN R -q -e 'renv::settings$ignored.packages(c("ASCAT", "Battenberg"))'
-RUN R -q -e 'renv::restore(lockfile = "/usr/local/renv.lock")'
+COPY battenberg_bl_custom.R /usr/local/src/
+COPY battenberg_wgs_bl_custom.R /usr/local/src/
 
-RUN wget -P /usr/local/ https://github.com/VanLoo-lab/ascat/archive/refs/tags/v3.1.2.tar.gz
-RUN tar -xvzf /usr/local/v3.1.2.tar.gz -C /usr/local/
-RUN R CMD INSTALL /usr/local/ascat-3.1.2/ASCAT/
-
-RUN wget -P /usr/local/ https://github.com/Wedge-lab/battenberg/archive/refs/tags/v2.2.9.tar.gz
-RUN tar -xvzf /usr/local/v2.2.9.tar.gz -C /usr/local/
-COPY battenberg_bl_custom.R /usr/local/battenberg-2.2.9/R/battenberg.R
-COPY battenberg_wgs_bl_custom.R /usr/local/battenberg-2.2.9/inst/example/battenberg_wgs.R
-
-RUN R CMD INSTALL /usr/local/battenberg-2.2.9/
+RUN set -eux && \
+    # Ignore specific packages from `renv.lock` file
+    R -q -e 'renv::settings$ignored.packages(c("ASCAT", "Battenberg"))' && \
+    R -q -e 'renv::restore(lockfile = "/usr/local/renv.lock")' && \
+    # Install ASCAT
+    cd /usr/local/src/ && \
+    wget -q -O ascat-${ASCAT_VERSION}.tar.gz \
+        https://github.com/VanLoo-lab/ascat/archive/refs/tags/v${ASCAT_VERSION}.tar.gz && \
+    tar -xzf ascat-${ASCAT_VERSION}.tar.gz && \
+    R CMD INSTALL ascat-${ASCAT_VERSION}/ASCAT/ && \
+    # Instal Battenberg
+    wget -q -O battenberg-${BATTENBERG_VERSION}.tar.gz \
+        https://github.com/Wedge-lab/battenberg/archive/refs/tags/v${BATTENBERG_VERSION}.tar.gz && \
+    tar -xzf battenberg-${BATTENBERG_VERSION}.tar.gz && \
+    cp battenberg_bl_custom.R battenberg-${BATTENBERG_VERSION}/R/battenberg.R && \
+    cp battenberg_wgs_bl_custom.R battenberg-${BATTENBERG_VERSION}/inst/example/battenberg_wgs.R && \
+    R CMD INSTALL battenberg-${BATTENBERG_VERSION}/ && \
+    # Cleanup
+    cd /usr/local/ && \
+    rm -rf /usr/local/src
 
 # Add a new user/group called bldocker
 RUN groupadd -g 500001 bldocker && \
