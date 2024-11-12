@@ -71,7 +71,7 @@ RUN set -eux && \
     R CMD INSTALL battenberg-${BATTENBERG_VERSION}/ && \
     # Cleanup
     cd /usr/local/ && \
-    rm -rf /usr/local/src
+    rm -rf /usr/local/src/*
 
 # Add a new user/group called bldocker
 RUN groupadd -g 500001 bldocker && \
